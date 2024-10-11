@@ -1,9 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { faker } from "@faker-js/faker";
-import { RoomsPage } from "./RoomsPage";
-import { ClientsPage } from "./ClientsPage";
-import { BillsPage } from "./BillsPage";
-import { ReservationsPage } from "./ReservationsPage";
+import { RoomsPage } from "./Rooms/RoomsPage";
+import { ClientsPage } from "./Clients/ClientsPage";
+import { BillsPage } from "./Bills/BillsPage";
+import { ReservationsPage } from "./Reservations/ReservationsPage";
+import { LoginPage } from "./Login/LoginPage";
+import { OverviewPage } from "./Overview/OverviewPage";
+import { CreateRoomsPage } from "./Rooms/CreateRoomPage";
+import { EditRoomsPage } from "./Rooms/EditRoomPage";
 
 const CREATED_ROOM_NUMBER = faker.number.int({ min: 1, max: 5 }).toString();
 const CREATED_ROOM_FLOOR = faker.number.int({ min: 1, max: 5 }).toString();
@@ -20,46 +24,43 @@ const CREATED_USER_MAIL = faker.internet.email().toString();
 const CREATED_USER_PHONE_NUMBER = faker.phone.number.toString();
 
 test.beforeEach(async ({ page }) => {
-   await page.goto('http://localhost:3000');
-   expect(page.url()).toBe('http://localhost:3000/login');
-   await expect(page.getByRole('link', { name: 'Tester Hotel' })).toBeVisible();
-   await page.locator('input[type="text"]').fill('tester01');
-   await page.locator('input[type="password"]').fill('GteteqbQQgSr88SwNExUQv2ydb7xuf8c');
-   await page.getByRole('button', { name: 'Login' }).click();
-
-   await expect(page.getByRole('heading', { name: 'Tester Hotel Overview' })).toBeVisible();
+   const loginPage = new LoginPage(page);
+   await loginPage.goToLoginpage();
+   await loginPage.performLogin('tester01', 'GteteqbQQgSr88SwNExUQv2ydb7xuf8c');
 
 });
 
 test("Logout", async ({ page }) => {
-    await page.getByRole("button", { name: "Logout" }).click();
-    await page.waitForURL("http://localhost:3000/login");
-    await expect(page.getByRole("link", { name: "Tester Hotel" })).toBeVisible();
+    const logout = new OverviewPage(page);
+    await logout.performLogout();
 });
 
 test('View all "View"', async ({ page }) => {
-    const roomspage = new RoomsPage(page);
-    await roomspage.goTo();
-    await roomspage.goBackFromRoomsRoom();
+    const overviewPage = new OverviewPage(page);
+    const roomsPage = new RoomsPage(page);
+    await overviewPage.goToRooms();
+    await roomsPage.goBackFromRoomsRoom();
 
-    const clientspage = new ClientsPage(page);
-    await clientspage.goTo();
-    await clientspage.goBackFromClientsRoom();
+    // const overviewPagea = new OverviewPage(page);
+    // await overviewPagea.goToClients();
+    // await clickClientsPage.goBackFromClientsRoom();
 
-    const billsPage = new BillsPage(page);
-    await billsPage.goTo();
-    await billsPage.goBackFromBillsRoom();
+    // const overviewPagae = new OverviewPage(page);
+    // await overviewPage.goToBills();
+    // await clickBillsPage.goBackFromBillsRoom();
 
-    const reservationpage = new ReservationsPage(page);
-    await reservationpage.goTo();
-    await reservationpage.goBackFromReservationsRoom();
+    // const overviewPage = new OverviewPage(page);
+    // await overviewPage.goToReservations();
+    // await clickReservationpage.goBackFromReservationsRoom();
 });
 
 test("Create room without filling anything, should recive errors", async ({ page }) => {
+    const overviewPage = new OverviewPage(page);
     const roomsPage = new RoomsPage(page);
-    await roomsPage.goTo();
+    const createRoomPage = new CreateRoomsPage(page);
+    await overviewPage.goToRooms();
     await roomsPage.goToRoomCreation();
-    await roomsPage.createRoomWithErrors();
+    await createRoomPage.createRoomWithErrors();
 });
 
 test("Make a new reservation without filling in start & end date, should recive errors", async ({ page }) => {
@@ -77,41 +78,48 @@ test("Create a Bill wihtout any inputs, should recive errors ", async ({ page })
 });
 
 test("Create room", async ({ page }) => {
+     const overviewPage = new OverviewPage(page);
      const roomsPage = new RoomsPage(page);
-     await roomsPage.goTo();
-     await roomsPage.goToRoomCreation();
-     await roomsPage.setCategory('twin');
-     await roomsPage.setRoomNumber(CREATED_ROOM_NUMBER);
-     await roomsPage.setFloor(CREATED_ROOM_FLOOR);
-     await roomsPage.setAvailability(true);
-     await roomsPage.setPrice(UNIQUE1_RANDOM_PRICE);
-     await roomsPage.selectFeatures([1,2,3,4]);
-     await roomsPage.createRoom(CREATED_ROOM_NUMBER,CREATED_ROOM_FLOOR);
+     const createRoomPage = new CreateRoomsPage(page);
+     await overviewPage.goToRooms();
+     await roomsPage.goToCreateRoom();
+     await createRoomPage.setCategory('twin');
+     await createRoomPage.setRoomNumber(CREATED_ROOM_NUMBER);
+     await createRoomPage.setFloor(CREATED_ROOM_FLOOR);
+     await createRoomPage.setAvailability(true);
+     await createRoomPage.setPrice(UNIQUE1_RANDOM_PRICE);
+     await createRoomPage.selectFeatures([1,2,3,4]);
+     await createRoomPage.saveCreatedRoom(CREATED_ROOM_NUMBER,CREATED_ROOM_FLOOR);
 });
 
 test("Edit room", async ({ page }) => {
+    const overviewPage = new OverviewPage(page);
     const roomsPage = new RoomsPage(page);
-    await roomsPage.goTo();
+    const editRoomPage = new EditRoomsPage(page);
+    await overviewPage.goToRooms();
     await roomsPage.goToRoomEdit();
-    await roomsPage.setCategory('single');
-    await roomsPage.setRoomNumber(EDITED_ROOM_NUMBER);
-    await roomsPage.setFloor(EDITED_ROOM_FLOOR);
-    await roomsPage.setPrice(UNIQUE2_RANDOM_PRICE);
-    await roomsPage.selectFeatures([1,2,3,4]);
-    await roomsPage.saveEditChanges(EDITED_ROOM_FLOOR,EDITED_ROOM_NUMBER,UNIQUE2_RANDOM_PRICE);
+    await editRoomPage.setCategory('single');
+    await editRoomPage.setRoomNumber(EDITED_ROOM_NUMBER);
+    await editRoomPage.setFloor(EDITED_ROOM_FLOOR);
+    await editRoomPage.setPrice(UNIQUE2_RANDOM_PRICE);
+    await editRoomPage.selectFeatures([1,2,3,4]);
+    await editRoomPage.saveEditChanges(EDITED_ROOM_FLOOR,EDITED_ROOM_NUMBER,UNIQUE2_RANDOM_PRICE);
 });
 
 test("Edit a room and put price as 0, should recive error ", async ({ page }) => {
+    const overviewPage = new OverviewPage(page);
     const roomsPage = new RoomsPage(page);
-    await roomsPage.goTo();
+    const editRoomPage = new EditRoomsPage(page);
+    await overviewPage.goToRooms();
     await roomsPage.goToRoomEdit();
-    await roomsPage.setPrice('0');
-    await roomsPage.editRoomWithError();
+    await editRoomPage.setPrice('0');
+    await editRoomPage.editRoomWithError();
 });
 
 test("Delete room", async ({ page }) => {
+    const overviewPage = new OverviewPage(page);
     const roomsPage = new RoomsPage(page);
-    await roomsPage.goTo();
+    await overviewPage.goToRooms();
     await roomsPage.deleteRoom();
 });
 
