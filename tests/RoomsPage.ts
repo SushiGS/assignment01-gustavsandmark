@@ -113,7 +113,4 @@ export class RoomsPage {
         await firstRoom.locator('a:nth-child(2)').click();
         await expect(rooms.getByText(titleText)).toHaveCount(0);
     }
-    
-
-
 }

@@ -28,5 +28,4 @@ export class ReservationsPage {
         await expect(this.page.getByText("Start date must be set")).toBeVisible();
         await expect(this.page.getByText("End date must be set")).toBeVisible();
     }
-
 }

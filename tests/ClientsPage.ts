@@ -15,7 +15,6 @@ export class ClientsPage {
 
     async createClient() {
         await this.page.locator("#app > div > h2 > a").click();
-        // await this.page.getByRole("link", { name: "Create Client" }).click();
         await expect(this.page.getByText("New Client")).toBeVisible();
     }
     async saveClient() {
@@ -45,11 +44,7 @@ export class ClientsPage {
 
     async setClientEmail(email: string) {
         await this.page.locator('input[type="email"]').fill(email);
-    }
-
-
-
-    
+    }   
 }
 
 
