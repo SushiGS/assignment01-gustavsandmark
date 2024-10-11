@@ -17,7 +17,7 @@ export class EditRoomsPage {
     constructor(page: Page) {
         this.page = page;
         this.deleteRoomLocator = this.page.locator('#app > div > h2 > a');
-        this.setCategoryLocator = this.page.locator("select").nth(3);
+        this.setCategoryLocator = this.page.locator("select").first();
         this.setRoomNumberLocator = this.page.locator("div").filter({ hasText: /^Number$/ }).getByRole("spinbutton")
         this.setFloorNumberLocator = this.page.locator("div").filter({ hasText: /^Floor$/ }).getByRole("spinbutton")
         this.setAvailabilityLocator = this.page.locator(".checkbox");
@@ -28,6 +28,11 @@ export class EditRoomsPage {
         this.logoutLocator = this.page.getByRole('button', {name: 'Logout'});
         this.goBackLocator = this.page.getByRole('button', {name: 'Back'});
 
+    }
+
+    async goTo() {
+        await this.page.goto(this.url);
+        await expect(this.page.getByText("Room: 1")).toBeVisible();
     }
 
     async goBackFromEditRoomsRoom() {

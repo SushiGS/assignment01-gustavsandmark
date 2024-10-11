@@ -28,6 +28,11 @@ export class CreateRoomsPage {
 
     }
 
+    async goTo() {
+        await this.page.goto(this.url);
+        await expect(this.page.getByText("New Room")).toBeVisible();
+    }
+
 
     async goBackFromRoomsRoom() {
         await this.goBackLocator.click();

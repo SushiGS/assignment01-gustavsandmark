@@ -21,6 +21,11 @@ export class RoomsPage {
 
     }
 
+    async goTo() {
+        await this.page.goto(this.url);
+        await expect(this.page.getByText("Rooms")).toBeVisible();
+    }
+
     async goToCreateRoom() {
         await this.createRoomLocator.click();
         await expect(this.page.getByRole('heading', { name: 'New Room' })).toBeVisible();
